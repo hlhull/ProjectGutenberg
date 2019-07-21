@@ -73,8 +73,11 @@ def generateSentenceRandom(file):
         num += 1
     return sentence
 
+# generates a sentence from a start word by finding the most common word Austen
+# uses after the previous word; doesn't repeat word pairs
 def generateSentenceFreq(startWord, file):
     words = getAllWords(file)
+    wordsUsed = {}
     word = startWord.lower()
     sentence = startWord.lower()
     num = 1
@@ -83,15 +86,26 @@ def generateSentenceFreq(startWord, file):
         max = 0
         maxWord = ''
         for i in range(len(words)):
+            alreadyUsed = False
             if words[i] == word and i < len(words) - 2:
                 if words[i+1] in wordsToPickFrom:
                     wordsToPickFrom[words[i+1]] += 1
+                elif word in wordsUsed:
+                    for used in wordsUsed:
+                        if words[i+1] == used:
+                            alreadyUsed = True
+                    if not alreadyUsed:
+                        wordsToPickFrom[words[i+1]] = 1
                 else:
                     wordsToPickFrom[words[i+1]] = 1
-                if wordsToPickFrom[words[i+1]] > max:
+                if not alreadyUsed and wordsToPickFrom[words[i+1]] > max:
                     max = wordsToPickFrom[words[i+1]]
                     maxWord = words[i+1]
         sentence = sentence + " " + maxWord
+        if word in wordsUsed:
+            wordsUsed[word].append(maxWord)
+        else:
+            wordsUsed[word] = [maxWord]
         word = maxWord
         num += 1
     return sentence
